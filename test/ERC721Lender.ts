@@ -16,7 +16,7 @@ A wrapper around an ERC-721 that is an ERC-721 by itself.
 
  */
 
-describe("ERC721LendWrapper should allow lending", function () {
+describe("ERC721Lender should allow lending", function () {
   it("Should allow an ERC721 owner to lend out a token", async function () {
     // const Greeter = await ethers.getContractFactory("LendWrapper");
     // const greeter = await Greeter.deploy("Hello, world!");
@@ -30,22 +30,13 @@ describe("ERC721LendWrapper should allow lending", function () {
     // await setGreetingTx.wait();
     //
     // expect(await greeter.greet()).to.equal("Hola, mundo!");
-
   });
-  it("Should allow an ERC721 owner to lend out a token that was previously lent out before", async function () {
-
-  });
-  it("Should allow a different ERC721 owner to lend out a token previously lent out by a different owner", async function () {
-
-  });
+  it("Should allow an ERC721 owner to lend out a token that was previously lent out before", async function () {});
+  it("Should allow a different ERC721 owner to lend out a token previously lent out by a different owner", async function () {});
 });
 
-describe("LendWrapper after lending is active", function () {
-  it("Borrower should have virtual custody of token", async function () {
-  });
-  it("Should allow borrower to transfer the token", async function () {
-  });
-  it("Should allow borrower to return the token before duration is over", async function() {
-  })
+describe("ERC721Lender after lending is active", function () {
+  it("Borrower should have virtual custody of token", async function () {});
+  it("Should allow borrower to transfer the token", async function () {});
+  it("Should allow borrower to return the token before duration is over", async function () {});
 });
-

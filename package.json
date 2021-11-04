@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "compile": "yarn hardhat compile",
+    "test": "yarn hardhat test",
+    "lint": "yarn lint:ts; yarn lint:sol",
+    "lint:ts": "eslint '*/**/*.{js,ts,tsx}'",
+    "lint:sol": "prettier -c 'contracts/**/*.sol'",
+    "lint-fix": "yarn lint-fix:ts; yarn lint-fix:sol",
+    "lint-fix:ts": "eslint '*/**/*.{js,ts,tsx}' --fix",
+    "lint-fix:sol": "prettier -w 'contracts/**/*.sol'"
+  },
   "dependencies": {
     "@openzeppelin/contracts": "^4.3.2",
     "hardhat": "^2.6.6"
@@ -27,7 +37,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-promise": "^5.1.0",
-    "ethereum-waffle": "^3.0.0",
+    "ethereum-waffle": "^3.1.1",
     "ethers": "^5.0.0",
     "hardhat-gas-reporter": "^1.0.4",
     "prettier": "^2.3.2",

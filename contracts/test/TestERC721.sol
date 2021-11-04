@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract TestERC721 is ERC721, ReentrancyGuard, Ownable {
     using Counters for Counters.Counter;
 
-    constructor (string memory customBaseURI_) ERC721("TestToken", "TTKN") {
+    constructor(string memory customBaseURI_) ERC721("TestToken", "TTKN") {
         customBaseURI = customBaseURI_;
     }
 
@@ -55,4 +55,3 @@ contract TestERC721 is ERC721, ReentrancyGuard, Ownable {
 
 // Contract created with Studio 721 v1.0.0
 // https://721.so
-
