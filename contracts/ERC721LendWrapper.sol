@@ -1,5 +1,4 @@
 //SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -33,7 +32,7 @@ contract ERC721LendWrapper is
     // ------------------ Events ---------------------- //
     event Lent(
         uint256 indexed tokenId,
-        address indexed owner,
+        address indexed lender,
         address indexed borrower,
         uint256 startTime,
         uint256 durationInSeconds
@@ -79,8 +78,13 @@ contract ERC721LendWrapper is
         if (isLendActive(tokenId)) {
             return ownerOf(tokenId);
         } else {
-            require(wrappedTokenLenders[tokenId] != address(0), "owner query for nonexistent token");
-            return wrappedTokenLenders[tokenId];
+            if (wrappedTokenLenders[tokenId] != address(0)) {
+                // token is in this contract
+                return wrappedTokenLenders[tokenId];
+            } else {
+                //token is not in this contract
+                return wrappedToken.ownerOf(tokenId);
+            }
         }
     }
 

@@ -2,17 +2,7 @@ import { expect } from 'chai';
 import { network, ethers } from 'hardhat';
 import { TestERC721, ERC721LendWrapper, TestERC721__factory, ERC721LendWrapper__factory } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-
-const evmIncreaseSeconds = async (seconds: number) => {
-  await network.provider.send('evm_increaseTime', [seconds]);
-  await network.provider.send('evm_mine');
-};
-
-const evmNow = async () => {
-  const blockNumBefore = await ethers.provider.getBlockNumber();
-  const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-  return blockBefore.timestamp;
-};
+import { evmIncreaseSeconds, evmNow } from '../lib/utils';
 
 describe('ERC721LendWrapper lends to borrower by minting an ERC-721', function () {
   let TestERC721: TestERC721__factory;
@@ -209,8 +199,8 @@ describe('ERC721LendWrapper should return correct virtual owner', function () {
     expect(await myNft.ownerOf(tokenId)).to.equal(lender.address);
 
     // LendWrapper should no longer reflect any owners for token as token has been burnt
-    await expect(lendWrapper.ownerOf(tokenId)).to.be.revertedWith('ERC721: owner query for nonexistent token'); // TODO: Null address
-    await expect(lendWrapper.virtualOwnerOf(tokenId)).to.be.revertedWith('owner query for nonexistent token'); // TODO: Null address
+    await expect(lendWrapper.ownerOf(tokenId)).to.be.revertedWith('ERC721: owner query for nonexistent token');
+    expect(await lendWrapper.virtualOwnerOf(tokenId)).to.equal(lender.address);
 
     // LendWrapper should decrease the balances accordingly. Virtual balance for tokens with inactive lending periods will remain constant.
     expect(await lendWrapper.balanceOf(borrower.address)).to.equal(initialBalance - 1);
