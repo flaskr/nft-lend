@@ -46,10 +46,7 @@ contract ERC721LendWrapper is
 
     modifier onlyWrappedTokenOwner(uint256 _tokenId) {
         // needs rework. the owner is going to be this contract lol
-        require(
-            _msgSender() == wrappedToken.ownerOf(_tokenId),
-            "MsgSender is not owner of wrapped token."
-        );
+        require(_msgSender() == wrappedToken.ownerOf(_tokenId), "MsgSender is not owner of wrapped token.");
         _;
     }
 
@@ -58,8 +55,7 @@ contract ERC721LendWrapper is
     function isLendActive(uint256 tokenId) public view returns (bool) {
         LendingDuration memory foundDuration = lendingDurations[tokenId];
         return (foundDuration.startTime != 0 &&
-            (foundDuration.startTime <= block.timestamp &&
-                block.timestamp <= foundDuration.endTime));
+            (foundDuration.startTime <= block.timestamp && block.timestamp <= foundDuration.endTime));
     }
 
     function isLendInPreStart(uint256 tokenId) public view returns (bool) {
@@ -71,10 +67,7 @@ contract ERC721LendWrapper is
         if (isLendActive(tokenId)) {
             return ownerOf(tokenId);
         } else {
-            require(
-                wrappedTokenLenders[tokenId] != address(0),
-                "owner query for nonexistent token"
-            );
+            require(wrappedTokenLenders[tokenId] != address(0), "owner query for nonexistent token");
             return wrappedTokenLenders[tokenId];
         }
     }
@@ -95,19 +88,10 @@ contract ERC721LendWrapper is
     ) public onlyWrappedTokenOwner(tokenId) {
         require(startTime > 0, "StartTime cannot be 0"); // 0 startTime will be used to check if a lendingDuration exists. Also, this is likely a mis-input
         require(borrower != address(0), "Cannot lend to invalid address"); // in case invalid address was provided by another smart contract.
-        lendingDurations[tokenId] = LendingDuration(
-            startTime,
-            startTime + durationInSeconds
-        );
+        lendingDurations[tokenId] = LendingDuration(startTime, startTime + durationInSeconds);
         wrappedTokenLenders[tokenId] = _msgSender();
         _safeMint(borrower, tokenId);
-        emit Lent(
-            tokenId,
-            _msgSender(),
-            borrower,
-            startTime,
-            durationInSeconds
-        );
+        emit Lent(tokenId, _msgSender(), borrower, startTime, durationInSeconds);
         wrappedToken.safeTransferFrom(_msgSender(), address(this), tokenId);
     }
 
@@ -139,10 +123,7 @@ contract ERC721LendWrapper is
         @param tokenId tokenId of the NFT to surrender
      */
     function surrender(uint256 tokenId) public {
-        require(
-            _msgSender() == ownerOf(tokenId),
-            "msgSender() is not the owner of token id"
-        );
+        require(_msgSender() == ownerOf(tokenId), "msgSender() is not the owner of token id");
         _returnWrappedTokenToLender(tokenId);
     }
 
@@ -152,10 +133,7 @@ contract ERC721LendWrapper is
         uint256 tokenId,
         bytes calldata data
     ) external override returns (bytes4) {
-        require(
-            msg.sender == address(wrappedToken),
-            "Can only receive wrapped ERC721"
-        );
+        require(msg.sender == address(wrappedToken), "Can only receive wrapped ERC721");
         return IERC721Receiver(operator).onERC721Received.selector;
     }
 }
