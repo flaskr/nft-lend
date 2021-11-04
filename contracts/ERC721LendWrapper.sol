@@ -17,6 +17,11 @@ contract ERC721LendWrapper is
     mapping(uint256 => LendingDuration) public lendingDurations;
     mapping(uint256 => address) public wrappedTokenLenders;
 
+    struct LendingDuration {
+        uint256 startTime;
+        uint256 endTime;
+    }
+
     constructor(
         address _wrappedTokenAddress,
         string memory _tokenName,
@@ -25,11 +30,7 @@ contract ERC721LendWrapper is
         wrappedToken = IERC721(_wrappedTokenAddress);
     }
 
-    struct LendingDuration {
-        uint256 startTime;
-        uint256 endTime;
-    }
-
+    // ------------------ Events ---------------------- //
     event Lent(
         uint256 indexed tokenId,
         address indexed owner,
@@ -37,32 +38,43 @@ contract ERC721LendWrapper is
         uint256 startTime,
         uint256 durationInSeconds
     );
+
     event Collected(uint256 indexed tokenId, address indexed lender);
 
-    modifier lendIsActive(uint256 _tokenId) {
-        require(isLendActive(_tokenId), "Lend is not active");
-        _;
-    }
-
-    modifier onlyWrappedTokenOwner(uint256 _tokenId) {
-        // needs rework. the owner is going to be this contract lol
-        require(_msgSender() == wrappedToken.ownerOf(_tokenId), "MsgSender is not owner of wrapped token.");
+    // ------------------ Modifiers ---------------------- //
+    modifier onlyWrappedTokenOwner(uint256 tokenId) {
+        require(_msgSender() == wrappedToken.ownerOf(tokenId), "MsgSender is not owner of wrapped token.");
         _;
     }
 
     // ------------------ Read Functions ---------------------- //
 
+    /**
+        @notice Returns true if the lend is active for given tokenId. Most users will be relying on `virtualOwnerOf()` to check for owner of a tokenId.
+        @param tokenId TokenId to check
+        @return true if token's lend duration is still active.
+    */
     function isLendActive(uint256 tokenId) public view returns (bool) {
         LendingDuration memory foundDuration = lendingDurations[tokenId];
         return (foundDuration.startTime != 0 &&
             (foundDuration.startTime <= block.timestamp && block.timestamp <= foundDuration.endTime));
     }
 
-    function isLendInPreStart(uint256 tokenId) public view returns (bool) {
+    /**
+        @notice Returns true if the lend is past the endTime. You should use `isLendActive()` to check for lend validity, unless you know what you're doing.
+        @dev The check is invalid if startTIme is 0, since the duration is not found. This is a valid assumption since they can't be created as 0 due to `lendOut()`.
+    */
+    function isLendExpired(uint256 tokenId) public view returns (bool) {
         LendingDuration memory foundDuration = lendingDurations[tokenId];
-        return block.timestamp < foundDuration.startTime;
+        return foundDuration.startTime != 0 && foundDuration.endTime < block.timestamp;
     }
 
+    /**
+        @notice Checks the virtual owner of a given tokenId. Throws if the tokenId is not managed in this contract or if it doesn't exist.
+        @dev Reverts in order to retain similar behavior to ERC721.ownerOf()
+        @param tokenId TokenId to check
+        @return Owner of the token
+    */
     function virtualOwnerOf(uint256 tokenId) public view returns (address) {
         if (isLendActive(tokenId)) {
             return ownerOf(tokenId);
@@ -109,12 +121,11 @@ contract ERC721LendWrapper is
     }
 
     /**
-        @notice Call to withdraw the wrapped NFT to original lender, by burning this token
+        @notice Call to withdraw the wrapped NFT to original lender, by burning this token. This is valid only after a lend period is completed.
         @param tokenId tokenId of the NFT to be sent to original lender
     */
     function collect(uint256 tokenId) public {
-        require(!isLendActive(tokenId), "Lend is still active");
-        require(!isLendInPreStart(tokenId), "Pending start of lend period");
+        require(isLendExpired(tokenId), "Lend has not expired");
         _returnWrappedTokenToLender(tokenId);
     }
 
@@ -127,6 +138,7 @@ contract ERC721LendWrapper is
         _returnWrappedTokenToLender(tokenId);
     }
 
+    /// @dev As a recipient of ERC721.safeTransfer();
     function onERC721Received(
         address operator,
         address from,

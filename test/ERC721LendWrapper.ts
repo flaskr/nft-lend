@@ -193,9 +193,9 @@ describe('ERC721LendWrapper should return correct virtual owner', function () {
   });
 
   it('Should not allow lender to collect token if lending period has not expired', async () => {
-    await expect(lendWrapper.connect(lender1).collect(0)).to.be.revertedWith('Lend is still active');
-    await expect(lendWrapper.connect(lender2).collect(2)).to.be.revertedWith('Lend is still active');
-    await expect(lendWrapper.connect(lender2).collect(3)).to.be.revertedWith('Pending start of lend period');
+    await expect(lendWrapper.connect(lender1).collect(0)).to.be.revertedWith('Lend has not expired');
+    await expect(lendWrapper.connect(lender2).collect(2)).to.be.revertedWith('Lend has not expired');
+    await expect(lendWrapper.connect(lender2).collect(3)).to.be.revertedWith('Lend has not expired');
   });
 
   async function assertBorrowerCanSurrender(tokenId: number, lender: SignerWithAddress, borrower: SignerWithAddress) {
