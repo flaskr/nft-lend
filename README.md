@@ -24,3 +24,8 @@ A wrapper around an ERC-721 that is an ERC-721. This token represents virtual cu
 * The wrapper token may be burnt to return the underlying token collector
   * By anyone after lending duration is over, by calling `collect`
   * By borrower at any time
+
+## Deployed Contract(s)
+| Network | Type | Address |
+| --- | --- | --- |
+| Ropsten Network | Lender | 0x1e83B1EB6C549353bdc9659737fEc6Ac5Fc500c0 |
